@@ -57,11 +57,8 @@ safety net.
 ## 🗂️ Project Structure
 
 ```
-day11_sentiment_analyzer/
-├── generate_dataset.py          # Creates reviews.csv (100 reviews)
 ├── sentiment_analyzer.py        # Main script: classify + count + chart
 ├── reviews.csv                  # Input dataset (100 product reviews)
-├── reviews_with_sentiment.csv   # Output: reviews + scores + labels
 ├── sentiment_summary_chart.png  # Output: bar + pie chart
 ├── requirements.txt
 └── README.md
