@@ -1,0 +1,8 @@
+pandas
+textblob
+vaderSentiment
+matplotlib
+seaborn
+flask
+pdfplumber
+openpyxl

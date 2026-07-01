@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <span class="topbar-brand">SA — 01</span>
+        <span class="topbar-tag">NLP · TextBlob · VADER</span>
+    </div>
+
+    <div class="page">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-inner">
+                <div class="sidebar-header">
+                    <h1 class="title">Sentiment<br>Analyzer</h1>
+                    <p class="sidebar-desc">
+                        Classify text as Positive, Negative, or Neutral using two independent NLP models and compare their scores in real time.
+                    </p>
+                </div>
+
+                <div class="sidebar-models">
+                    <div class="model-card">
+                        <span class="model-name">TextBlob</span>
+                        <p class="model-desc">Pattern-based polarity scoring. Score ranges from −1.0 to +1.0.</p>
+                    </div>
+                    <div class="model-card">
+                        <span class="model-name">VADER</span>
+                        <p class="model-desc">Rule-based, tuned for social media. Compound score ranges from −1.0 to +1.0.</p>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <span>Day 11 — Phase 2 NLP</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main">
+
+            <!-- MODE TABS -->
+            <div class="tabs">
+                <button class="tab active" data-tab="manual">Manual Input</button>
+                <button class="tab" data-tab="upload">Upload File</button>
+            </div>
+
+            <!-- ══ TAB: MANUAL ══ -->
+            <div id="tab-manual" class="tab-panel active">
+
+                <section class="card input-card">
+                    <label class="card-label" for="reviewInput">Enter your review</label>
+                    <textarea id="reviewInput" rows="5" placeholder="Paste a product review or any sentence here..."></textarea>
+                    <div class="input-footer">
+                        <span id="charCount" class="char-count">0 characters</span>
+                        <button id="analyzeBtn" class="btn-accent">
+                            <span id="btnText">Analyze</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
+                    </div>
+                </section>
+
+                <section id="results" class="results hidden">
+                    <div class="verdict-row">
+                        <div class="verdict-block">
+                            <span class="verdict-model-label">TextBlob</span>
+                            <span id="tb-verdict" class="verdict-word">—</span>
+                            <span id="tb-score" class="verdict-score">—</span>
+                        </div>
+                        <div class="verdict-divider"></div>
+                        <div class="verdict-block">
+                            <span class="verdict-model-label">VADER</span>
+                            <span id="vader-verdict" class="verdict-word">—</span>
+                            <span id="vader-score" class="verdict-score">—</span>
+                        </div>
+                        <div class="verdict-divider"></div>
+                        <div class="verdict-block verdict-final">
+                            <span class="verdict-model-label">Final Verdict</span>
+                            <span id="final-verdict" class="verdict-word verdict-word-final">—</span>
+                            <span id="final-score" class="verdict-score">—</span>
+                            <span id="confidence-badge" class="confidence-badge"></span>
+                        </div>
+                    </div>
+
+                    <div class="card breakdown-card">
+                        <span class="card-label">VADER Score Breakdown</span>
+                        <div class="bars">
+                            <div class="bar-row">
+                                <span class="bar-label">Positive</span>
+                                <div class="bar-track"><div id="bar-pos" class="bar-fill bar-pos" style="width:0%"></div></div>
+                                <span id="val-pos" class="bar-val">0.00</span>
+                            </div>
+                            <div class="bar-row">
+                                <span class="bar-label">Neutral</span>
+                                <div class="bar-track"><div id="bar-neu" class="bar-fill bar-neu" style="width:0%"></div></div>
+                                <span id="val-neu" class="bar-val">0.00</span>
+                            </div>
+                            <div class="bar-row">
+                                <span class="bar-label">Negative</span>
+                                <div class="bar-track"><div id="bar-neg" class="bar-fill bar-neg" style="width:0%"></div></div>
+                                <span id="val-neg" class="bar-val">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card history-card">
+                    <div class="history-header">
+                        <span class="card-label">Recent Analyses</span>
+                        <button id="clearHistory" class="btn-ghost">Clear</button>
+                    </div>
+                    <ul id="historyList" class="history-list">
+                        <li class="history-empty">No analyses yet. Run your first one above.</li>
+                    </ul>
+                </section>
+            </div>
+
+            <!-- ══ TAB: UPLOAD ══ -->
+            <div id="tab-upload" class="tab-panel hidden">
+
+                <section class="card upload-card">
+                    <label class="card-label">Upload File</label>
+
+                    <div id="dropZone" class="drop-zone">
+                        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.pdf" hidden>
+                        <div class="drop-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                        <p class="drop-title">Drop your file here</p>
+                        <p class="drop-sub">or <button class="btn-link" id="browseBtn">browse to upload</button></p>
+                        <p class="drop-formats">Supported: CSV · Excel (.xlsx / .xls) · PDF</p>
+                    </div>
+
+                    <div id="filePreview" class="file-preview hidden">
+                        <div class="file-preview-inner">
+                            <div class="file-info">
+                                <span id="fileIcon" class="file-type-badge">CSV</span>
+                                <div>
+                                    <p id="fileName" class="file-name">file.csv</p>
+                                    <p id="fileSize" class="file-size">0 KB</p>
+                                </div>
+                            </div>
+                            <button id="removeFile" class="btn-ghost">Remove</button>
+                        </div>
+
+                        <!-- Column selector — shown only for CSV/Excel -->
+                        <div id="columnWrapper" class="column-wrapper hidden">
+                            <label class="card-label" for="columnSelect">Review column</label>
+                            <select id="columnSelect" class="col-select">
+                                <option value="">— auto detect first column —</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="upload-footer">
+                        <span id="uploadStatus" class="upload-status"></span>
+                        <button id="uploadBtn" class="btn-accent" disabled>
+                            <span id="uploadBtnText">Analyze File</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Bulk Results -->
+                <section id="bulkResults" class="hidden">
+
+                    <!-- Summary Cards -->
+                    <div class="summary-row">
+                        <div class="summary-card">
+                            <span class="summary-num" id="sumTotal">0</span>
+                            <span class="summary-label">Total Reviews</span>
+                        </div>
+                        <div class="summary-card positive-card">
+                            <span class="summary-num positive" id="sumPos">0</span>
+                            <span class="summary-label">Positive</span>
+                        </div>
+                        <div class="summary-card neutral-card">
+                            <span class="summary-num neutral" id="sumNeu">0</span>
+                            <span class="summary-label">Neutral</span>
+                        </div>
+                        <div class="summary-card negative-card">
+                            <span class="summary-num negative" id="sumNeg">0</span>
+                            <span class="summary-label">Negative</span>
+                        </div>
+                    </div>
+
+                    <!-- Distribution Bar -->
+                    <div class="card dist-card">
+                        <span class="card-label">Sentiment Distribution</span>
+                        <div class="dist-bar">
+                            <div id="dist-pos" class="dist-pos" style="width:0%" title="Positive"></div>
+                            <div id="dist-neu" class="dist-neu" style="width:0%" title="Neutral"></div>
+                            <div id="dist-neg" class="dist-neg" style="width:0%" title="Negative"></div>
+                        </div>
+                        <div class="dist-legend">
+                            <span class="legend-item"><i class="legend-dot dot-pos"></i>Positive</span>
+                            <span class="legend-item"><i class="legend-dot dot-neu"></i>Neutral</span>
+                            <span class="legend-item"><i class="legend-dot dot-neg"></i>Negative</span>
+                        </div>
+                    </div>
+
+                    <!-- Results Table -->
+                    <div class="card table-card">
+                        <span class="card-label">Review Breakdown</span>
+                        <div class="table-wrapper">
+                            <table id="bulkTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Review</th>
+                                        <th>TextBlob</th>
+                                        <th>TB Score</th>
+                                        <th>VADER</th>
+                                        <th>VADER Score</th>
+                                        <th>Final</th>
+                                        <th>Confidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bulkTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
