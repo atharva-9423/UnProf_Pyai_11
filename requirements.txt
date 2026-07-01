@@ -6,3 +6,4 @@ seaborn
 flask
 pdfplumber
 openpyxl
+gunicorn
