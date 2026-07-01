@@ -6,6 +6,8 @@ A Python tool that classifies product reviews as **Positive**, **Negative**, or
 **Neutral**, counts each category, and visualizes the results with a bar
 chart and a pie chart.
 
+## **[View Live demo](https://sentiment-analyzer-awxq.onrender.com)**
+
 ## 📌 Project Overview
 
 Sentiment Analysis is an NLP technique used to determine the emotional tone
